@@ -1,0 +1,3 @@
+-keep class dev.bandno.decision.** { *; }
+-keep class dev.bandno.app.data.** { *; }
+-dontwarn org.bouncycastle.**

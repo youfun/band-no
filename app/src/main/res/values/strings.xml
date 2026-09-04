@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Band No</string>
+    <string name="app_tagline">来电筛选</string>
+
+    <string name="nav_home">首页</string>
+    <string name="nav_logs">日志</string>
+    <string name="nav_settings">设置</string>
+    <string name="nav_oem">机型说明</string>
+
+    <string name="role_active">筛选已生效</string>
+    <string name="role_inactive">筛选未生效</string>
+    <string name="role_inactive_hint">系统仍按默认方式响铃。点此设为默认来电筛选应用。</string>
+    <string name="role_request">设为默认来电筛选</string>
+    <string name="role_held_hint">本机将在响铃前按 R1 / R2 / R3 判定。</string>
+
+    <string name="contacts_granted">已允许读取通讯录</string>
+    <string name="contacts_missing">未授予通讯录权限</string>
+    <string name="contacts_missing_hint">无法识别联系人时，通讯录号码也会走时段规则。建议开启。</string>
+    <string name="contacts_request">授予通讯录权限</string>
+
+    <string name="today_title">今日</string>
+    <string name="today_allowed">放行 %1$d</string>
+    <string name="today_blocked">拦截 %1$d</string>
+    <string name="recent_title">最近判定</string>
+    <string name="recent_empty">还没有来电记录</string>
+    <string name="see_all">查看全部</string>
+
+    <string name="onboarding_title_1">少接骚扰，不漏重要电话</string>
+    <string name="onboarding_body_1">按你设定的时段和「同一号码再次来电」决定响铃还是静音。规则存在本机，不上传通话内容，也不读通话内容。</string>
+    <string name="onboarding_title_2">需要系统来电筛选角色</string>
+    <string name="onboarding_body_2">Android 只把响铃前的判定交给「默认来电筛选应用」。下一步会跳到系统页，请选择 Band No。</string>
+    <string name="onboarding_title_3">建议读取通讯录</string>
+    <string name="onboarding_body_3">用于「联系人始终放行」。只比对号码是否在通讯录，不会备份或上传联系人。</string>
+    <string name="onboarding_title_4">国产手机请关掉系统拦截</string>
+    <string name="onboarding_body_4">小米、华为、OPPO、vivo 自带的陌生号拦截可能抢在本应用前面。请在机型说明里按品牌关掉系统拦截，并允许自启动。</string>
+    <string name="onboarding_next">继续</string>
+    <string name="onboarding_done">开始使用</string>
+    <string name="onboarding_skip">稍后再说</string>
+
+    <string name="settings_rules">规则</string>
+    <string name="settings_r1_title">R1 夜间 / 清晨放行窗</string>
+    <string name="settings_r1_summary">窗口内来电默认响铃，不当骚扰处理。</string>
+    <string name="settings_r2_title">R2 重要来电窗</string>
+    <string name="settings_r2_summary">窗口内陌生号也不拒接。与 R1 重叠时以放行为准。</string>
+    <string name="settings_r3_title">R3 二次来电放行</string>
+    <string name="settings_r3_summary">同一号码在间隔内再次来电则响铃。</string>
+    <string name="settings_enabled">启用</string>
+    <string name="settings_start">开始</string>
+    <string name="settings_end">结束</string>
+    <string name="settings_overnight_hint">跨午夜：%1$s 至次日 %2$s</string>
+    <string name="settings_same_day_hint">当日：%1$s 至 %2$s（含开始，不含结束）</string>
+    <string name="settings_r1_strangers_only">仅对陌生号生效</string>
+    <string name="settings_r2_force">强制覆盖其他拦截</string>
+    <string name="settings_r2_force_hint">以后若加入黑名单，此窗口内默认仍放行陌生号。</string>
+    <string name="settings_r3_interval">间隔（分钟）</string>
+    <string name="settings_r3_require_blocked">须曾被拦截 / 静音</string>
+    <string name="settings_r3_require_blocked_hint">关闭时，间隔内任意一次来电都算「第一次」。</string>
+
+    <string name="settings_contacts">联系人</string>
+    <string name="settings_always_allow_contacts">联系人始终放行</string>
+    <string name="settings_always_allow_contacts_hint">关闭后，通讯录号码也走 R1 / R2 / R3。</string>
+
+    <string name="settings_block">拦截动作</string>
+    <string name="settings_block_silence">静音通知（推荐）</string>
+    <string name="settings_block_silence_hint">不响铃、不震动，系统仍记未接来电。</string>
+    <string name="settings_block_reject">拒接</string>
+    <string name="settings_block_reject_hint">直接挂断。可能拦掉验证码或快递电话，需二次确认。</string>
+    <string name="settings_block_reject_confirm_title">确认使用拒接？</string>
+    <string name="settings_block_reject_confirm_body">拒接会立即挂断，对方听不到完整振铃。验证码、快递、医院回拨可能被掐掉。更稳妥的是保持「静音通知」，让 R3 二次来电放行。</string>
+    <string name="settings_block_reject_confirm">仍然使用拒接</string>
+    <string name="settings_cancel">取消</string>
+
+    <string name="settings_private">隐藏号码</string>
+    <string name="settings_private_allow">默认放行</string>
+    <string name="settings_private_follow">走普通规则</string>
+    <string name="settings_private_hint">来电显示为私人号码或空号时的策略。</string>
+
+    <string name="settings_logs">日志</string>
+    <string name="settings_retention">保留天数</string>
+    <string name="settings_mask_numbers">日志中脱敏号码</string>
+    <string name="settings_clear_logs">清除日志</string>
+    <string name="settings_clear_cache">清除来电缓存</string>
+    <string name="settings_clear_logs_confirm">删除本机保存的筛选日志？不可恢复。</string>
+    <string name="settings_clear_cache_confirm">删除用于二次来电判定的号码历史？R3 会暂时失效直到有新来电。</string>
+    <string name="settings_cleared">已清除</string>
+    <string name="settings_privacy">隐私说明</string>
+    <string name="settings_privacy_body">号码、判定结果和设置只存在本机。不录音、不读通话内容、不上传通讯录。若日后需要联网功能，会单独再征求同意。</string>
+    <string name="settings_version">%1$s</string>
+
+    <string name="logs_title">最近筛选日志</string>
+    <string name="logs_empty">没有记录</string>
+    <string name="logs_action_allow">放行</string>
+    <string name="logs_action_silence">静音</string>
+    <string name="logs_action_reject">拒接</string>
+    <string name="logs_rule_private">隐藏号码</string>
+    <string name="logs_rule_contact">联系人</string>
+    <string name="logs_rule_r1">R1 放行窗</string>
+    <string name="logs_rule_r2">R2 重要窗</string>
+    <string name="logs_rule_r3">R3 二次来电</string>
+    <string name="logs_rule_block">默认拦截</string>
+    <string name="logs_unknown_number">隐藏号码</string>
+    <string name="logs_contact_badge">联系人</string>
+
+    <string name="oem_title">机型说明</string>
+    <string name="oem_intro">部分手机的系统拦截或省电策略会让本应用来不及判定。请按品牌处理。</string>
+    <string name="oem_generic_title">通用</string>
+    <string name="oem_generic_body">设置 → 应用 → 默认应用 → 来电筛选 / 骚扰拦截，选 Band No。</string>
+    <string name="oem_pixel_title">Pixel / 原生 Android</string>
+    <string name="oem_pixel_body">在本应用点「设为默认来电筛选」即可。一般不需要自启动白名单。</string>
+    <string name="oem_xiaomi_title">小米 / 红米</string>
+    <string name="oem_xiaomi_body">1. 电话应用 → 骚扰拦截：关闭「未知号码拦截」或把默认筛选交给 Band No。\n2. 设置 → 应用设置 → Band No → 自启动：允许。\n3. 省电策略改为「无限制」。</string>
+    <string name="oem_huawei_title">华为 / 荣耀</string>
+    <string name="oem_huawei_body">1. 关闭系统「未知号码自动拦截」。\n2. 设置 → 应用 → 应用启动管理 → Band No：手动管理，允许自启动、关联启动、后台活动。</string>
+    <string name="oem_oppo_title">OPPO / 一加 / realme</string>
+    <string name="oem_oppo_body">1. 关闭系统骚扰拦截或将本应用设为默认筛选。\n2. 设置 → 应用 → 自启动：允许 Band No。</string>
+    <string name="oem_vivo_title">vivo / iQOO</string>
+    <string name="oem_vivo_body">1. i 管家 / 电话拦截：关闭对未知号码的自动拦截。\n2. 设置 → 电池 → 后台高耗电：允许 Band No。\n3. 允许自启动。</string>
+
+    <string name="time_picker_confirm">确定</string>
+    <string name="ok">好</string>
+    <string name="back">返回</string>
+</resources>
