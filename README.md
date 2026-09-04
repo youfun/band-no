@@ -57,7 +57,7 @@ APK：`app/build/outputs/apk/debug/app-debug.apk`
 ./gradlew :app:assembleRelease -PabiFilters=arm64-v8a
 ```
 
-推送到 `main` 或开 PR 时，GitHub Actions 会跑单测并上传 arm64-v8a APK（Actions → 对应 workflow → Artifacts）。
+推送到 `main` 或开 PR 时，GitHub Actions 会跑单测并上传 arm64-v8a APK。打 tag（如 `v0.0.1`）成功后，APK 会出现在 [Releases](https://github.com/youfun/band-no/releases)。
 
 ```bash
 adb install -r app/build/outputs/apk/debug/app-debug.apk
