@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.bandno.app.BuildConfig
 import dev.bandno.app.R
 import dev.bandno.app.ui.LocalAppContainer
+import dev.bandno.app.ui.theme.bandNoTopAppBarColors
 import dev.bandno.app.ui.components.TimeField
 import dev.bandno.app.ui.formatHm
 import dev.bandno.decision.BlockAction
@@ -66,7 +67,12 @@ fun SettingsScreen() {
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_settings)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.nav_settings)) },
+                colors = bandNoTopAppBarColors(),
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier

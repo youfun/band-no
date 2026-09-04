@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.bandno.app.R
 import dev.bandno.app.data.CallAttemptEntity
 import dev.bandno.app.ui.LocalAppContainer
+import dev.bandno.app.ui.theme.bandNoTopAppBarColors
 import dev.bandno.app.ui.actionLabel
 import dev.bandno.app.ui.displayNumber
 import dev.bandno.app.ui.formatLocal
@@ -93,7 +94,10 @@ fun HomeScreen(onSeeLogs: () -> Unit) {
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.app_name)) })
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                colors = bandNoTopAppBarColors(),
+            )
         },
     ) { padding ->
         LazyColumn(
@@ -156,11 +160,17 @@ private fun StatusCard(active: Boolean, onRequestRole: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (active) {
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surfaceContainerHigh
             } else {
-                MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                MaterialTheme.colorScheme.errorContainer
+            },
+            contentColor = if (active) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onErrorContainer
             },
         ),
+        shape = MaterialTheme.shapes.large,
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
@@ -184,7 +194,12 @@ private fun StatusCard(active: Boolean, onRequestRole: () -> Unit) {
 
 @Composable
 private fun ContactsCard(granted: Boolean, onRequest: () -> Unit) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        shape = MaterialTheme.shapes.large,
+    ) {
         Column(Modifier.padding(16.dp)) {
             Text(
                 stringResource(if (granted) R.string.contacts_granted else R.string.contacts_missing),

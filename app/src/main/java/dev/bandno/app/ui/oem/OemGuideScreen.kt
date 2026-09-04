@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.bandno.app.R
+import dev.bandno.app.ui.theme.bandNoTopAppBarColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +34,12 @@ fun OemGuideScreen() {
     )
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.oem_title)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.oem_title)) },
+                colors = bandNoTopAppBarColors(),
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier

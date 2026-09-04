@@ -8,8 +8,10 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,7 +69,10 @@ fun BandNoApp() {
             contentWindowInsets = WindowInsets(0),
             bottomBar = {
                 if (showBar) {
-                    NavigationBar {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        val scheme = MaterialTheme.colorScheme
                         Tabs.forEach { tab ->
                             NavigationBarItem(
                                 selected = current == tab.route,
@@ -82,6 +87,13 @@ fun BandNoApp() {
                                 },
                                 icon = { Icon(tab.icon, contentDescription = stringResource(tab.label)) },
                                 label = { Text(stringResource(tab.label)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = scheme.secondaryContainer,
+                                    selectedIconColor = scheme.onSecondaryContainer,
+                                    selectedTextColor = scheme.onSurface,
+                                    unselectedIconColor = scheme.onSurfaceVariant,
+                                    unselectedTextColor = scheme.onSurfaceVariant,
+                                ),
                             )
                         }
                     }

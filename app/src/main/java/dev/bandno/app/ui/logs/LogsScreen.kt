@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.bandno.app.R
 import dev.bandno.app.ui.LocalAppContainer
+import dev.bandno.app.ui.theme.bandNoTopAppBarColors
 import dev.bandno.app.ui.home.LogRow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,12 @@ fun LogsScreen() {
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.logs_title)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.logs_title)) },
+                colors = bandNoTopAppBarColors(),
+            )
+        },
     ) { padding ->
         if (rows.isEmpty()) {
             Box(
