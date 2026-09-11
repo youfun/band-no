@@ -12,7 +12,7 @@
     <string name="role_inactive">筛选未生效</string>
     <string name="role_inactive_hint">系统仍按默认方式响铃。点此设为默认来电筛选应用。</string>
     <string name="role_request">设为默认来电筛选</string>
-    <string name="role_held_hint">本机将在响铃前按 R1 / R2 / R3 判定。</string>
+    <string name="role_held_hint">本机将在响铃前按联系人、号段、放行时段和二次来电判定。</string>
 
     <string name="contacts_granted">已允许读取通讯录</string>
     <string name="contacts_missing">未授予通讯录权限</string>
@@ -39,27 +39,41 @@
     <string name="onboarding_skip">稍后再说</string>
 
     <string name="settings_rules">规则</string>
-    <string name="settings_r1_title">R1 夜间 / 清晨放行窗</string>
-    <string name="settings_r1_summary">窗口内来电默认响铃，不当骚扰处理。</string>
-    <string name="settings_r2_title">R2 重要来电窗</string>
-    <string name="settings_r2_summary">窗口内陌生号也不拒接。与 R1 重叠时以放行为准。</string>
-    <string name="settings_r3_title">R3 二次来电放行</string>
-    <string name="settings_r3_summary">同一号码在间隔内再次来电则响铃。</string>
+    <string name="settings_decision_order">判定顺序：联系人 → 号段 → 放行时段 → 二次来电 → 默认拦截</string>
+    <string name="settings_windows_title">放行时段</string>
+    <string name="settings_windows_hint">落在任一时段内的来电默认响铃。默认为下班后 18:00–22:00，备注可改，改时间也不丢。号段拦截仍优先。</string>
+    <string name="settings_windows_enable_hint">关闭后不按时段放行</string>
+    <string name="settings_windows_add">添加时段</string>
+    <string name="settings_windows_note_hint">备注，可空</string>
+    <string name="settings_windows_delete">删除时段</string>
+    <string name="settings_repeat_title">二次来电放行</string>
+    <string name="settings_repeat_summary_on">%1$d 分钟内再打则响</string>
+    <string name="settings_repeat_hint">同一号码在间隔内再次来电则响铃。已被号段拦截的号码不走这条。</string>
+    <string name="settings_repeat_enable_hint">关闭后不因再次来电放行</string>
+    <string name="settings_prefix_title">号段拦截</string>
+    <string name="settings_prefix_empty">未设置</string>
+    <string name="settings_prefix_hint">按号码开头拦截，例如 170。通讯录号码不受影响。空列表表示不按号段拦截。</string>
+    <string name="settings_prefix_added">已添加</string>
+    <string name="settings_prefix_none">还没有号段</string>
+    <string name="settings_prefix_placeholder">例如 170</string>
+    <string name="settings_prefix_add">添加</string>
+    <string name="settings_prefix_error">请输入 3 到 7 位数字，例如 170</string>
+    <string name="settings_prefix_full">最多 30 个号段</string>
+    <string name="settings_prefix_suggest">建议</string>
+    <string name="settings_prefix_suggest_hint">虚拟运营商常用号段，点一下加入。</string>
+    <string name="settings_prefix_remove">移除 %1$s</string>
+    <string name="settings_rule_off">已关闭</string>
     <string name="settings_enabled">启用</string>
     <string name="settings_start">开始</string>
     <string name="settings_end">结束</string>
-    <string name="settings_overnight_hint">跨午夜：%1$s 至次日 %2$s</string>
+    <string name="settings_overnight_hint">跨午夜：%1$s 至次日 %2$s（含开始，不含结束）</string>
     <string name="settings_same_day_hint">当日：%1$s 至 %2$s（含开始，不含结束）</string>
-    <string name="settings_r1_strangers_only">仅对陌生号生效</string>
-    <string name="settings_r2_force">强制覆盖其他拦截</string>
-    <string name="settings_r2_force_hint">以后若加入黑名单，此窗口内默认仍放行陌生号。</string>
     <string name="settings_r3_interval">间隔（分钟）</string>
     <string name="settings_r3_require_blocked">须曾被拦截 / 静音</string>
-    <string name="settings_r3_require_blocked_hint">关闭时，间隔内任意一次来电都算「第一次」。</string>
+    <string name="settings_r3_require_blocked_hint">关闭时，间隔内任意一次来电都算第一次</string>
 
-    <string name="settings_contacts">联系人</string>
     <string name="settings_always_allow_contacts">联系人始终放行</string>
-    <string name="settings_always_allow_contacts_hint">关闭后，通讯录号码也走 R1 / R2 / R3。</string>
+    <string name="settings_always_allow_contacts_hint">通讯录号码必响</string>
 
     <string name="settings_block">拦截动作</string>
     <string name="settings_block_silence">静音通知（推荐）</string>
@@ -67,10 +81,11 @@
     <string name="settings_block_reject">拒接</string>
     <string name="settings_block_reject_hint">直接挂断。可能拦掉验证码或快递电话，需二次确认。</string>
     <string name="settings_block_reject_confirm_title">确认使用拒接？</string>
-    <string name="settings_block_reject_confirm_body">拒接会立即挂断，对方听不到完整振铃。验证码、快递、医院回拨可能被掐掉。更稳妥的是保持「静音通知」，让 R3 二次来电放行。</string>
+    <string name="settings_block_reject_confirm_body">拒接会立即挂断，对方听不到完整振铃。验证码、快递、医院回拨可能被掐掉。更稳妥的是保持「静音通知」，让二次来电放行。</string>
     <string name="settings_block_reject_confirm">仍然使用拒接</string>
     <string name="settings_cancel">取消</string>
 
+    <string name="settings_other">其他</string>
     <string name="settings_private">隐藏号码</string>
     <string name="settings_private_allow">默认放行</string>
     <string name="settings_private_follow">走普通规则</string>
@@ -82,7 +97,10 @@
     <string name="settings_clear_logs">清除日志</string>
     <string name="settings_clear_cache">清除来电缓存</string>
     <string name="settings_clear_logs_confirm">删除本机保存的筛选日志？不可恢复。</string>
-    <string name="settings_clear_cache_confirm">删除用于二次来电判定的号码历史？R3 会暂时失效直到有新来电。</string>
+    <string name="settings_clear_cache_confirm">删除用于二次来电判定的号码历史？二次来电会暂时失效直到有新来电。</string>
+    <string name="settings_logs_summary">保留 %1$d 天 · 脱敏%2$s</string>
+    <string name="settings_mask_on">开启</string>
+    <string name="settings_mask_off">关闭</string>
     <string name="settings_cleared">已清除</string>
     <string name="settings_privacy">隐私说明</string>
     <string name="settings_privacy_body">号码、判定结果和设置只存在本机。不录音、不读通话内容、不上传通讯录。若日后需要联网功能，会单独再征求同意。</string>
@@ -95,9 +113,10 @@
     <string name="logs_action_reject">拒接</string>
     <string name="logs_rule_private">隐藏号码</string>
     <string name="logs_rule_contact">联系人</string>
-    <string name="logs_rule_r1">R1 放行窗</string>
-    <string name="logs_rule_r2">R2 重要窗</string>
-    <string name="logs_rule_r3">R3 二次来电</string>
+    <string name="logs_rule_prefix">号段拦截</string>
+    <string name="logs_rule_window">放行时段</string>
+    <string name="logs_rule_window_legacy">放行时段</string>
+    <string name="logs_rule_repeat">二次来电</string>
     <string name="logs_rule_block">默认拦截</string>
     <string name="logs_unknown_number">隐藏号码</string>
     <string name="logs_contact_badge">联系人</string>

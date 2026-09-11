@@ -3,16 +3,14 @@ package dev.bandno.decision
 import java.time.Duration
 
 /**
- * Pure incoming-call policy. Order is allow-first (see product spec §4):
+ * Pure incoming-call policy. Allow-first, fail-open at the caller:
  *
  * 1. Hidden / empty number with [PrivateNumberPolicy.ALLOW]
  * 2. System contact when "always allow contacts" is on
- * 3. R2 important window
- * 4. R1 allow window
- * 5. R3 repeat call within N minutes
+ * 3. Normalized number matches a blocked prefix
+ * 4. Any enabled allow-time window
+ * 5. Repeat call within N minutes (R3)
  * 6. Default intercept ([ScreenSettings.blockAction])
- *
- * Fail-open is the caller's job: this function itself always returns a decision.
  */
 object CallScreener {
     fun decide(call: IncomingCall, settings: ScreenSettings): ScreenDecision {
@@ -26,17 +24,18 @@ object CallScreener {
             return allow(RuleHit.CONTACT)
         }
 
-        if (settings.r2Enabled &&
-            TimeWindows.contains(localTime, settings.r2Start, settings.r2End)
+        if (!call.isPrivateOrUnknown &&
+            BlockedPrefixes.matches(call.normalizedNumber, settings.blockedPrefixes)
         ) {
-            return allow(RuleHit.R2_IMPORTANT_WINDOW)
+            return ScreenDecision(blockActionOf(settings), RuleHit.PREFIX_BLOCK)
         }
 
-        if (settings.r1Enabled &&
-            TimeWindows.contains(localTime, settings.r1Start, settings.r1End) &&
-            r1Applies(call, settings)
+        if (settings.allowWindowsEnabled &&
+            settings.allowWindows.any { window ->
+                TimeWindows.contains(localTime, window.start, window.end)
+            }
         ) {
-            return allow(RuleHit.R1_ALLOW_WINDOW)
+            return allow(RuleHit.ALLOW_WINDOW)
         }
 
         if (settings.r3Enabled && matchesRepeatCall(call, settings)) {
@@ -44,11 +43,6 @@ object CallScreener {
         }
 
         return ScreenDecision(blockActionOf(settings), RuleHit.DEFAULT_BLOCK)
-    }
-
-    private fun r1Applies(call: IncomingCall, settings: ScreenSettings): Boolean {
-        if (!settings.r1StrangersOnly) return true
-        return !call.isContact
     }
 
     private fun matchesRepeatCall(call: IncomingCall, settings: ScreenSettings): Boolean {

@@ -17,4 +17,27 @@ object TimeWindows {
             now >= start || now < end
         }
     }
+
+    /** True when every instant in `[innerStart, innerEnd)` also lies in the outer window. */
+    fun covers(
+        outerStart: LocalTime,
+        outerEnd: LocalTime,
+        innerStart: LocalTime,
+        innerEnd: LocalTime,
+    ): Boolean {
+        if (innerStart == innerEnd) return outerStart == outerEnd
+        return minutesIn(innerStart, innerEnd).all { minute ->
+            contains(LocalTime.of(minute / 60, minute % 60), outerStart, outerEnd)
+        }
+    }
+
+    private fun minutesIn(start: LocalTime, end: LocalTime): List<Int> {
+        val startMin = start.hour * 60 + start.minute
+        val endMin = end.hour * 60 + end.minute
+        return when {
+            startMin == endMin -> (0 until 24 * 60).toList()
+            startMin < endMin -> (startMin until endMin).toList()
+            else -> (startMin until 24 * 60).toList() + (0 until endMin).toList()
+        }
+    }
 }

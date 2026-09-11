@@ -58,6 +58,7 @@ class ScreeningController(
                 isPrivateOrUnknown = isPrivate,
                 isContact = isContact,
                 priorAttempts = priors,
+                normalizedNumber = normalized,
             ),
             settings,
         )

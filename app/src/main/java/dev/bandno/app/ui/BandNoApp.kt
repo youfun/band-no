@@ -31,6 +31,11 @@ import dev.bandno.app.ui.home.HomeScreen
 import dev.bandno.app.ui.logs.LogsScreen
 import dev.bandno.app.ui.oem.OemGuideScreen
 import dev.bandno.app.ui.onboarding.OnboardingScreen
+import dev.bandno.app.ui.settings.AllowWindowsScreen
+import dev.bandno.app.ui.settings.LogsSettingsScreen
+import dev.bandno.app.ui.settings.PrefixBlockScreen
+import dev.bandno.app.ui.settings.PrivateNumberScreen
+import dev.bandno.app.ui.settings.RepeatCallScreen
 import dev.bandno.app.ui.settings.SettingsScreen
 import dev.bandno.app.ui.theme.BandNoTheme
 
@@ -112,7 +117,30 @@ fun BandNoApp() {
                     HomeScreen(onSeeLogs = { navController.navigate("logs") })
                 }
                 composable("logs") { LogsScreen() }
-                composable("settings") { SettingsScreen() }
+                composable("settings") {
+                    SettingsScreen(
+                        onOpenWindows = { navController.navigate("settings/windows") },
+                        onOpenRepeat = { navController.navigate("settings/repeat") },
+                        onOpenPrefix = { navController.navigate("settings/prefix") },
+                        onOpenPrivate = { navController.navigate("settings/private") },
+                        onOpenLogs = { navController.navigate("settings/logs") },
+                    )
+                }
+                composable("settings/windows") {
+                    AllowWindowsScreen(onBack = { navController.popBackStack() })
+                }
+                composable("settings/repeat") {
+                    RepeatCallScreen(onBack = { navController.popBackStack() })
+                }
+                composable("settings/prefix") {
+                    PrefixBlockScreen(onBack = { navController.popBackStack() })
+                }
+                composable("settings/private") {
+                    PrivateNumberScreen(onBack = { navController.popBackStack() })
+                }
+                composable("settings/logs") {
+                    LogsSettingsScreen(onBack = { navController.popBackStack() })
+                }
                 composable("oem") { OemGuideScreen() }
             }
         }

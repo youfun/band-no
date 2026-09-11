@@ -18,8 +18,8 @@ enum class DecisionAction {
 enum class RuleHit {
     PRIVATE_NUMBER,
     CONTACT,
-    R2_IMPORTANT_WINDOW,
-    R1_ALLOW_WINDOW,
+    PREFIX_BLOCK,
+    ALLOW_WINDOW,
     R3_REPEAT_CALL,
     DEFAULT_BLOCK,
 }
@@ -29,15 +29,15 @@ enum class PrivateNumberPolicy {
     FOLLOW_RULES,
 }
 
+data class AllowWindow(
+    val start: LocalTime,
+    val end: LocalTime,
+    val note: String = "",
+)
+
 data class ScreenSettings(
-    val r1Enabled: Boolean = true,
-    val r1Start: LocalTime = LocalTime.of(18, 0),
-    val r1End: LocalTime = LocalTime.of(9, 0),
-    val r1StrangersOnly: Boolean = false,
-    val r2Enabled: Boolean = true,
-    val r2Start: LocalTime = LocalTime.of(19, 0),
-    val r2End: LocalTime = LocalTime.of(20, 0),
-    val r2ForceOverride: Boolean = true,
+    val allowWindowsEnabled: Boolean = true,
+    val allowWindows: List<AllowWindow> = listOf(AllowWindowsMigration.NewDefaultWindow),
     val r3Enabled: Boolean = true,
     val r3IntervalMinutes: Int = 3,
     val r3RequireFirstBlocked: Boolean = false,
@@ -45,6 +45,7 @@ data class ScreenSettings(
     val blockAction: BlockAction = BlockAction.SILENCE,
     val privateNumberPolicy: PrivateNumberPolicy = PrivateNumberPolicy.ALLOW,
     val logRetentionDays: Int = 14,
+    val blockedPrefixes: List<String> = emptyList(),
 ) {
     init {
         require(r3IntervalMinutes in 1..180) { "r3IntervalMinutes must be 1..180" }
@@ -67,6 +68,7 @@ data class IncomingCall(
     val isPrivateOrUnknown: Boolean,
     val isContact: Boolean,
     val priorAttempts: List<PriorAttempt>,
+    val normalizedNumber: String? = null,
 )
 
 data class ScreenDecision(

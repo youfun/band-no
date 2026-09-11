@@ -8,34 +8,147 @@ class CallScreenerTest {
     private val defaults = ScreenSettings.Default
 
     @Test
-    fun strangerAtTenIsSilenced() {
+    fun strangerInsideDefaultEveningWindowIsAllowed() {
+        val decision = CallScreener.decide(at(18, 0), defaults)
+        assertEquals(DecisionAction.ALLOW, decision.action)
+        assertEquals(RuleHit.ALLOW_WINDOW, decision.ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(21, 59), defaults).ruleHit)
+    }
+
+    @Test
+    fun strangerAtWindowEndIsBlocked() {
+        val decision = CallScreener.decide(at(22, 0), defaults)
+        assertEquals(DecisionAction.SILENCE, decision.action)
+        assertEquals(RuleHit.DEFAULT_BLOCK, decision.ruleHit)
+    }
+
+    @Test
+    fun strangerInDaytimeIsBlocked() {
         val decision = CallScreener.decide(at(10, 0), defaults)
         assertEquals(DecisionAction.SILENCE, decision.action)
         assertEquals(RuleHit.DEFAULT_BLOCK, decision.ruleHit)
     }
 
     @Test
-    fun strangerAtNineteenThirtyRingsViaR2() {
-        val decision = CallScreener.decide(at(19, 30), defaults)
-        assertEquals(DecisionAction.ALLOW, decision.action)
-        assertEquals(RuleHit.R2_IMPORTANT_WINDOW, decision.ruleHit)
-    }
-
-    @Test
-    fun updatedR1WindowAppliesWithoutReset() {
+    fun extraLunchWindowAlsoAllows() {
         val settings = defaults.copy(
-            r1Start = LocalTime.of(20, 0),
-            r1End = LocalTime.of(8, 0),
-            r2Enabled = false,
+            allowWindows = listOf(
+                eveningWindow(),
+                AllowWindow(LocalTime.of(12, 0), LocalTime.of(13, 0), note = ""),
+            ),
         )
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(21, 0), settings).ruleHit)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(7, 30), settings).ruleHit)
-        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(10, 0), settings).ruleHit)
-        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(19, 30), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(12, 0), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(12, 59), settings).ruleHit)
+        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(13, 0), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(19, 0), settings).ruleHit)
     }
 
     @Test
-    fun secondCallWithinThreeMinutesRingsViaR3() {
+    fun userAddedOvernightWindowStillWorks() {
+        val settings = defaults.copy(
+            allowWindows = listOf(
+                AllowWindow(LocalTime.of(22, 0), LocalTime.of(8, 0), note = ""),
+            ),
+        )
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(22, 0), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(23, 30), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(0, 5), settings).ruleHit)
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(7, 59), settings).ruleHit)
+        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(8, 0), settings).ruleHit)
+        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(19, 0), settings).ruleHit)
+    }
+
+    @Test
+    fun prefixBlockBeatsAllowWindowAndRepeatCall() {
+        val first = at(19, 0, normalizedNumber = "17012345678")
+        val second = first.copy(
+            now = first.now.plusMinutes(2),
+            priorAttempts = listOf(prior(first.now, blocked = true)),
+        )
+        val settings = defaults.copy(blockedPrefixes = listOf("170"))
+        val firstDecision = CallScreener.decide(first, settings)
+        val secondDecision = CallScreener.decide(second, settings)
+        assertEquals(DecisionAction.SILENCE, firstDecision.action)
+        assertEquals(RuleHit.PREFIX_BLOCK, firstDecision.ruleHit)
+        assertEquals(RuleHit.PREFIX_BLOCK, secondDecision.ruleHit)
+        assertEquals(DecisionAction.SILENCE, secondDecision.action)
+    }
+
+    @Test
+    fun contactStillAllowedWhenPrefixWouldMatch() {
+        val decision = CallScreener.decide(
+            at(10, 0, isContact = true, normalizedNumber = "17012345678"),
+            defaults.copy(blockedPrefixes = listOf("170")),
+        )
+        assertEquals(RuleHit.CONTACT, decision.ruleHit)
+        assertEquals(DecisionAction.ALLOW, decision.action)
+    }
+
+    @Test
+    fun privateNumberSkipsPrefixEvenWhenFollowRules() {
+        val settings = defaults.copy(
+            privateNumberPolicy = PrivateNumberPolicy.FOLLOW_RULES,
+            blockedPrefixes = listOf("170"),
+        )
+        val decision = CallScreener.decide(
+            at(10, 0, isPrivate = true, normalizedNumber = "17012345678"),
+            settings,
+        )
+        assertEquals(RuleHit.DEFAULT_BLOCK, decision.ruleHit)
+    }
+
+    @Test
+    fun privateNumberDefaultsToAllow() {
+        val decision = CallScreener.decide(at(10, 0, isPrivate = true), defaults)
+        assertEquals(RuleHit.PRIVATE_NUMBER, decision.ruleHit)
+        assertEquals(DecisionAction.ALLOW, decision.action)
+    }
+
+    @Test
+    fun plus86NumberHitsPrefixAfterNormalize() {
+        val normalized = NumberNormalizer.normalize("+86 170-1234-5678")
+        assertEquals("17012345678", normalized)
+        val decision = CallScreener.decide(
+            at(19, 0, normalizedNumber = normalized),
+            defaults.copy(blockedPrefixes = listOf("170")),
+        )
+        assertEquals(RuleHit.PREFIX_BLOCK, decision.ruleHit)
+    }
+
+    @Test
+    fun twoDigitPrefixIsIgnored() {
+        val settings = defaults.copy(blockedPrefixes = listOf("17"))
+        assertEquals(RuleHit.ALLOW_WINDOW, CallScreener.decide(at(19, 0, normalizedNumber = "17012345678"), settings).ruleHit)
+    }
+
+    @Test
+    fun prefixesFromThreeToSevenDigitsMatch() {
+        val number = "16512345678"
+        assertEquals(
+            RuleHit.PREFIX_BLOCK,
+            CallScreener.decide(at(10, 0, normalizedNumber = number), defaults.copy(blockedPrefixes = listOf("165"))).ruleHit,
+        )
+        assertEquals(
+            RuleHit.PREFIX_BLOCK,
+            CallScreener.decide(at(10, 0, normalizedNumber = number), defaults.copy(blockedPrefixes = listOf("1651234"))).ruleHit,
+        )
+        assertEquals(
+            RuleHit.DEFAULT_BLOCK,
+            CallScreener.decide(at(10, 0, normalizedNumber = number), defaults.copy(blockedPrefixes = listOf("16512345"))).ruleHit,
+        )
+    }
+
+    @Test
+    fun emptyPrefixListDoesNotBlock() {
+        val settings = defaults.copy(blockedPrefixes = emptyList())
+        assertEquals(
+            RuleHit.DEFAULT_BLOCK,
+            CallScreener.decide(at(10, 0, normalizedNumber = "17012345678"), settings).ruleHit,
+        )
+    }
+
+    @Test
+    fun secondCallWithinThreeMinutesRingsWhenPrefixMisses() {
         val first = at(14, 0)
         val second = first.copy(
             now = first.now.plusMinutes(2),
@@ -66,47 +179,9 @@ class CallScreenerTest {
     }
 
     @Test
-    fun disablingR2DropsImportantWindowPrivilegeButR1MayStillAllow() {
-        val r2Off = defaults.copy(r2Enabled = false)
-        val stillR1 = CallScreener.decide(at(19, 30), r2Off)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, stillR1.ruleHit)
-
-        val r1DoesNotCoverEvening = r2Off.copy(
-            r1Start = LocalTime.of(22, 0),
-            r1End = LocalTime.of(8, 0),
-        )
-        val blocked = CallScreener.decide(at(19, 30), r1DoesNotCoverEvening)
-        assertEquals(RuleHit.DEFAULT_BLOCK, blocked.ruleHit)
-    }
-
-    @Test
-    fun overnightR1AllowsLateNightAndEarlyMorning() {
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(18, 0), defaults).ruleHit)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(23, 0), defaults).ruleHit)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(0, 5), defaults).ruleHit)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, CallScreener.decide(at(8, 59), defaults).ruleHit)
-        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(9, 0), defaults).ruleHit)
-    }
-
-    @Test
-    fun r2BeatsDefaultBlockInsideWindowEvenIfR1Off() {
-        val settings = defaults.copy(r1Enabled = false)
-        assertEquals(RuleHit.R2_IMPORTANT_WINDOW, CallScreener.decide(at(19, 0), settings).ruleHit)
-        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(20, 0), settings).ruleHit)
-    }
-
-    @Test
-    fun privateNumberDefaultsToAllow() {
-        val decision = CallScreener.decide(at(10, 0, isPrivate = true), defaults)
-        assertEquals(RuleHit.PRIVATE_NUMBER, decision.ruleHit)
-        assertEquals(DecisionAction.ALLOW, decision.action)
-    }
-
-    @Test
-    fun privateNumberFollowsRulesWhenConfigured() {
-        val settings = defaults.copy(privateNumberPolicy = PrivateNumberPolicy.FOLLOW_RULES)
-        val decision = CallScreener.decide(at(10, 0, isPrivate = true), settings)
-        assertEquals(RuleHit.DEFAULT_BLOCK, decision.ruleHit)
+    fun disabledAllowWindowsFallThroughToDefaultBlock() {
+        val settings = defaults.copy(allowWindowsEnabled = false)
+        assertEquals(RuleHit.DEFAULT_BLOCK, CallScreener.decide(at(19, 0), settings).ruleHit)
     }
 
     @Test
@@ -126,19 +201,6 @@ class CallScreenerTest {
     }
 
     @Test
-    fun r1StrangersOnlySkipsContactsWhenContactsAreNotAlwaysAllowed() {
-        val settings = defaults.copy(
-            alwaysAllowContacts = false,
-            r1StrangersOnly = true,
-            r2Enabled = false,
-        )
-        val contact = CallScreener.decide(at(18, 30, isContact = true), settings)
-        val stranger = CallScreener.decide(at(18, 30), settings)
-        assertEquals(RuleHit.DEFAULT_BLOCK, contact.ruleHit)
-        assertEquals(RuleHit.R1_ALLOW_WINDOW, stranger.ruleHit)
-    }
-
-    @Test
     fun rejectActionIsUsedWhenConfigured() {
         val settings = defaults.copy(blockAction = BlockAction.REJECT)
         val decision = CallScreener.decide(at(10, 0), settings)
@@ -147,9 +209,13 @@ class CallScreenerTest {
     }
 
     @Test
-    fun allowWinsWhenWindowsOverlap() {
-        val decision = CallScreener.decide(at(19, 15), defaults)
-        assertEquals(DecisionAction.ALLOW, decision.action)
-        assertEquals(RuleHit.R2_IMPORTANT_WINDOW, decision.ruleHit)
+    fun prefixUsesGlobalRejectAction() {
+        val settings = defaults.copy(
+            blockAction = BlockAction.REJECT,
+            blockedPrefixes = listOf("170"),
+        )
+        val decision = CallScreener.decide(at(19, 0, normalizedNumber = "17012345678"), settings)
+        assertEquals(DecisionAction.REJECT, decision.action)
+        assertEquals(RuleHit.PREFIX_BLOCK, decision.ruleHit)
     }
 }

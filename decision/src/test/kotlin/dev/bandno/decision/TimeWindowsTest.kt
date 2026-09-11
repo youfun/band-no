@@ -36,4 +36,24 @@ class TimeWindowsTest {
         assertTrue(TimeWindows.contains(LocalTime.of(12, 0), noon, noon))
         assertTrue(TimeWindows.contains(LocalTime.of(23, 59), noon, noon))
     }
+
+    @Test
+    fun overnightWindowCoversNestedEveningHour() {
+        assertTrue(
+            TimeWindows.covers(
+                LocalTime.of(18, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(19, 0),
+                LocalTime.of(20, 0),
+            ),
+        )
+        assertFalse(
+            TimeWindows.covers(
+                LocalTime.of(18, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(12, 0),
+                LocalTime.of(13, 0),
+            ),
+        )
+    }
 }

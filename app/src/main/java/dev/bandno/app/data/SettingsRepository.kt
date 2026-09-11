@@ -6,10 +6,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import dev.bandno.decision.AllowWindowFormat
+import dev.bandno.decision.AllowWindowsMigration
 import dev.bandno.decision.BlockAction
+import dev.bandno.decision.BlockedPrefixes
 import dev.bandno.decision.PrivateNumberPolicy
 import dev.bandno.decision.ScreenSettings
-import java.time.LocalTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +36,10 @@ class SettingsRepository(
     fun cached(): ScreenSettings = preferences.value.screen
 
     suspend fun updateScreen(transform: (ScreenSettings) -> ScreenSettings) {
-        val next = transform(cached())
-        dataStore.edit { prefs -> writeScreen(prefs, next) }
+        dataStore.edit { prefs ->
+            val current = prefs.toAppPreferences().screen
+            writeScreen(prefs, transform(current))
+        }
     }
 
     suspend fun setOnboardingComplete() {
@@ -49,11 +54,9 @@ class SettingsRepository(
         val R1_ENABLED = booleanPreferencesKey("r1_enabled")
         val R1_START_MIN = intPreferencesKey("r1_start_min")
         val R1_END_MIN = intPreferencesKey("r1_end_min")
-        val R1_STRANGERS_ONLY = booleanPreferencesKey("r1_strangers_only")
         val R2_ENABLED = booleanPreferencesKey("r2_enabled")
         val R2_START_MIN = intPreferencesKey("r2_start_min")
         val R2_END_MIN = intPreferencesKey("r2_end_min")
-        val R2_FORCE = booleanPreferencesKey("r2_force")
         val R3_ENABLED = booleanPreferencesKey("r3_enabled")
         val R3_INTERVAL = intPreferencesKey("r3_interval")
         val R3_REQUIRE_BLOCKED = booleanPreferencesKey("r3_require_blocked")
@@ -63,18 +66,26 @@ class SettingsRepository(
         val LOG_RETENTION_DAYS = intPreferencesKey("log_retention_days")
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val MASK_NUMBERS = booleanPreferencesKey("mask_numbers")
+        val ALLOW_WINDOWS = stringPreferencesKey("allow_windows")
+        val ALLOW_WINDOWS_ENABLED = booleanPreferencesKey("allow_windows_enabled")
+        val BLOCKED_PREFIXES = stringPreferencesKey("blocked_prefixes")
 
         fun Preferences.toAppPreferences(): AppPreferences {
             val defaults = ScreenSettings.Default
+            val windows = AllowWindowsMigration.resolve(
+                encodedWindows = this[ALLOW_WINDOWS],
+                windowsEnabled = this[ALLOW_WINDOWS_ENABLED],
+                hasLegacyKeys = hasLegacyWindowKeys(),
+                r1Enabled = this[R1_ENABLED],
+                r1StartMin = this[R1_START_MIN],
+                r1EndMin = this[R1_END_MIN],
+                r2Enabled = this[R2_ENABLED],
+                r2StartMin = this[R2_START_MIN],
+                r2EndMin = this[R2_END_MIN],
+            )
             val screen = ScreenSettings(
-                r1Enabled = this[R1_ENABLED] ?: defaults.r1Enabled,
-                r1Start = minutesToTime(this[R1_START_MIN], defaults.r1Start),
-                r1End = minutesToTime(this[R1_END_MIN], defaults.r1End),
-                r1StrangersOnly = this[R1_STRANGERS_ONLY] ?: defaults.r1StrangersOnly,
-                r2Enabled = this[R2_ENABLED] ?: defaults.r2Enabled,
-                r2Start = minutesToTime(this[R2_START_MIN], defaults.r2Start),
-                r2End = minutesToTime(this[R2_END_MIN], defaults.r2End),
-                r2ForceOverride = this[R2_FORCE] ?: defaults.r2ForceOverride,
+                allowWindowsEnabled = windows.enabled,
+                allowWindows = windows.windows,
                 r3Enabled = this[R3_ENABLED] ?: defaults.r3Enabled,
                 r3IntervalMinutes = this[R3_INTERVAL] ?: defaults.r3IntervalMinutes,
                 r3RequireFirstBlocked = this[R3_REQUIRE_BLOCKED] ?: defaults.r3RequireFirstBlocked,
@@ -86,6 +97,7 @@ class SettingsRepository(
                     PrivateNumberPolicy.ALLOW
                 },
                 logRetentionDays = this[LOG_RETENTION_DAYS] ?: defaults.logRetentionDays,
+                blockedPrefixes = BlockedPrefixes.decode(this[BLOCKED_PREFIXES]),
             )
             return AppPreferences(
                 screen = screen,
@@ -94,15 +106,18 @@ class SettingsRepository(
             )
         }
 
+        fun Preferences.hasLegacyWindowKeys(): Boolean =
+            this[R1_ENABLED] != null ||
+                this[R1_START_MIN] != null ||
+                this[R1_END_MIN] != null ||
+                this[R2_ENABLED] != null ||
+                this[R2_START_MIN] != null ||
+                this[R2_END_MIN] != null
+
         fun writeScreen(prefs: MutablePreferences, settings: ScreenSettings) {
-            prefs[R1_ENABLED] = settings.r1Enabled
-            prefs[R1_START_MIN] = settings.r1Start.toMinuteOfDay()
-            prefs[R1_END_MIN] = settings.r1End.toMinuteOfDay()
-            prefs[R1_STRANGERS_ONLY] = settings.r1StrangersOnly
-            prefs[R2_ENABLED] = settings.r2Enabled
-            prefs[R2_START_MIN] = settings.r2Start.toMinuteOfDay()
-            prefs[R2_END_MIN] = settings.r2End.toMinuteOfDay()
-            prefs[R2_FORCE] = settings.r2ForceOverride
+            prefs[ALLOW_WINDOWS_ENABLED] = settings.allowWindowsEnabled
+            prefs[ALLOW_WINDOWS] = AllowWindowFormat.encode(settings.allowWindows)
+            prefs[BLOCKED_PREFIXES] = BlockedPrefixes.encode(settings.blockedPrefixes)
             prefs[R3_ENABLED] = settings.r3Enabled
             prefs[R3_INTERVAL] = settings.r3IntervalMinutes
             prefs[R3_REQUIRE_BLOCKED] = settings.r3RequireFirstBlocked
@@ -111,13 +126,5 @@ class SettingsRepository(
             prefs[PRIVATE_POLICY] = if (settings.privateNumberPolicy == PrivateNumberPolicy.FOLLOW_RULES) 1 else 0
             prefs[LOG_RETENTION_DAYS] = settings.logRetentionDays
         }
-
-        fun minutesToTime(minutes: Int?, fallback: LocalTime): LocalTime {
-            if (minutes == null) return fallback
-            val safe = minutes.coerceIn(0, 24 * 60 - 1)
-            return LocalTime.of(safe / 60, safe % 60)
-        }
-
-        fun LocalTime.toMinuteOfDay(): Int = hour * 60 + minute
     }
 }
