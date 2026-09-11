@@ -52,13 +52,16 @@
 
 APK：`app/build/outputs/apk/debug/app-debug.apk`
 
-仅打 arm64（手机常用）：
+仅打 arm64（手机常用），release 用本机正式签名（不是 debug 证书）：
 
 ```bash
+# 首次：复制 keystore.properties.example 为 keystore.properties，填入密钥库路径和密码
 ./gradlew :app:assembleRelease -PabiFilters=arm64-v8a
 ```
 
-推送到 `main` 或开 PR 时，GitHub Actions 会跑单测并上传 arm64-v8a APK。打 tag（如 `v0.0.1`）成功后，APK 会出现在 [Releases](https://github.com/youfun/band-no/releases)。
+APK：`app/build/outputs/apk/release/app-release.apk`。给别人安装用这个，包名 `dev.bandno.app`。以后升级必须用同一把密钥签，否则无法覆盖安装。密钥库（`keystore/bandno-release.p12`）和 `keystore.properties` 不要提交到 git。
+
+推送到 `main` 或开 PR 时，GitHub Actions 会跑单测并上传 arm64-v8a 正式签名 APK。仓库 Secrets 需配置 `RELEASE_KEYSTORE_BASE64`、`BANDNO_STORE_PASSWORD`、`BANDNO_KEY_PASSWORD`（可选 `BANDNO_KEY_ALIAS`，默认 `bandno`）。打 tag（如 `v0.0.3`）成功后，APK 会出现在 [Releases](https://github.com/youfun/band-no/releases)。不上 Play，用户自行安装。
 
 ```bash
 adb install -r app/build/outputs/apk/debug/app-debug.apk

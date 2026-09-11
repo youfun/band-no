@@ -5,9 +5,49 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+import java.io.File
+import java.util.Properties
+
+fun loadReleaseSigning(): Map<String, String>? {
+    val fromEnv = listOf(
+        "BANDNO_STORE_FILE",
+        "BANDNO_STORE_PASSWORD",
+        "BANDNO_KEY_ALIAS",
+        "BANDNO_KEY_PASSWORD",
+    ).associateWith { env -> System.getenv(env).orEmpty() }
+    if (fromEnv.values.all { it.isNotBlank() }) {
+        return mapOf(
+            "storeFile" to fromEnv.getValue("BANDNO_STORE_FILE"),
+            "storePassword" to fromEnv.getValue("BANDNO_STORE_PASSWORD"),
+            "keyAlias" to fromEnv.getValue("BANDNO_KEY_ALIAS"),
+            "keyPassword" to fromEnv.getValue("BANDNO_KEY_PASSWORD"),
+        )
+    }
+    val propsFile = rootProject.file("keystore.properties")
+    if (!propsFile.isFile) return null
+    val props = Properties().apply { propsFile.inputStream().use { load(it) } }
+    val keys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+    if (keys.any { props.getProperty(it).isNullOrBlank() }) return null
+    return keys.associateWith { props.getProperty(it) }
+}
+
 android {
     namespace = "dev.bandno.app"
     compileSdk = 36
+
+    val releaseSigning = loadReleaseSigning()
+    if (releaseSigning != null) {
+        signingConfigs {
+            create("release") {
+                val raw = releaseSigning.getValue("storeFile")
+                val store = File(raw)
+                storeFile = if (store.isAbsolute) store else rootProject.file(raw)
+                storePassword = releaseSigning.getValue("storePassword")
+                keyAlias = releaseSigning.getValue("keyAlias")
+                keyPassword = releaseSigning.getValue("keyPassword")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "dev.bandno.app"
@@ -31,7 +71,11 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (releaseSigning != null) {
+                signingConfigs.getByName("release")
+            } else {
+                null
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -60,6 +104,17 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named("assembleRelease").configure {
+        doFirst {
+            check(android.signingConfigs.findByName("release") != null) {
+                "Release signing is missing. Copy keystore.properties.example to keystore.properties " +
+                    "or set BANDNO_STORE_FILE / BANDNO_STORE_PASSWORD / BANDNO_KEY_ALIAS / BANDNO_KEY_PASSWORD."
+            }
         }
     }
 }
