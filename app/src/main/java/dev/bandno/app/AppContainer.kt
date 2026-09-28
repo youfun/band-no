@@ -8,6 +8,8 @@ import dev.bandno.app.data.CallLogRepository
 import dev.bandno.app.data.SettingsRepository
 import dev.bandno.app.screening.ContactDirectory
 import dev.bandno.app.screening.ScreeningController
+import dev.bandno.decision.CallingCodes
+import dev.bandno.decision.RegionDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,16 +29,22 @@ class AppContainer(
         appContext,
         AppDatabase::class.java,
         "band_no.db",
-    ).build()
+    ).fallbackToDestructiveMigration(dropAllTables = true).build()
 
     val settingsRepository = SettingsRepository(appContext.settingsStore, applicationScope)
     val callLogRepository = CallLogRepository(database.callAttemptDao())
     val contactDirectory = ContactDirectory(appContext)
     val roleStatus = RoleStatus(appContext)
+    val regionDirectory = RegionDirectory.load(
+        mobileTable = RegionDirectory::class.java.getResourceAsStream("/region-cn-mobile.bin")!!.use { it.readBytes() },
+        landlineTable = RegionDirectory::class.java.getResourceAsStream("/region-cn-landline.bin")!!.use { it.readBytes() },
+        countries = CallingCodes.displayNames,
+    )
     val screeningController = ScreeningController(
         settingsRepository = settingsRepository,
         callLogRepository = callLogRepository,
         contacts = contactDirectory,
+        regions = regionDirectory,
     )
 
     init {

@@ -10,6 +10,7 @@ import dev.bandno.decision.CallScreener
 import dev.bandno.decision.DecisionAction
 import dev.bandno.decision.IncomingCall
 import dev.bandno.decision.NumberNormalizer
+import dev.bandno.decision.RegionDirectory
 import dev.bandno.decision.ScreenDecision
 import java.time.Instant
 import java.time.ZoneId
@@ -21,6 +22,7 @@ class ScreeningController(
     private val settingsRepository: SettingsRepository,
     private val callLogRepository: CallLogRepository,
     private val contacts: ContactDirectory,
+    private val regions: RegionDirectory,
     private val zoneId: ZoneId = ZoneId.systemDefault(),
     private val clock: () -> Instant = Instant::now,
 ) {
@@ -40,7 +42,8 @@ class ScreeningController(
         val isPrivate = isPrivateOrUnknown(rawNumber, details.handlePresentation)
         val settings = settingsRepository.cached()
         val now = clock()
-        val normalized = NumberNormalizer.normalize(rawNumber)
+        val parsed = NumberNormalizer.parse(rawNumber)
+        val normalized = parsed?.let(NumberNormalizer::domesticDigits)
         val isContact = !isPrivate && !rawNumber.isNullOrBlank() && contacts.isContact(rawNumber)
         val priors = if (normalized != null) {
             callLogRepository.priorsSince(
@@ -51,6 +54,7 @@ class ScreeningController(
             emptyList()
         }
 
+        val region = if (isPrivate) "" else regions.describe(parsed).orEmpty()
         val decision = CallScreener.decide(
             IncomingCall(
                 now = now,
@@ -70,6 +74,7 @@ class ScreeningController(
                 timestamp = now,
                 decision = decision,
                 isContact = isContact,
+                region = region,
             )
         } catch (t: Throwable) {
             Log.e(TAG, "failed to persist call attempt", t)

@@ -25,6 +25,7 @@ class CallLogRepository(
         timestamp: Instant,
         decision: ScreenDecision,
         isContact: Boolean,
+        region: String = "",
     ) {
         dao.insertSync(
             CallAttemptEntity(
@@ -34,6 +35,7 @@ class CallLogRepository(
                 action = decision.action.name,
                 ruleHit = decision.ruleHit.name,
                 isContact = isContact,
+                region = region,
             ),
         )
     }

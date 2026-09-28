@@ -3,7 +3,7 @@
 轻量安卓来电筛选：响铃前按「号段 + 时段 + 同号二次来电」决定放行或拦截。宁可多响，也不要误拦。
 
 - 最低系统：Android 10（API 29）
-- 当前版本：0.0.3
+- 当前版本：0.0.4
 - 包名：`dev.bandno.app`（debug 为 `dev.bandno.app.debug`）
 
 判定只看号码、是否联系人、来电时间和近期拨打次数。不录音、不读通话内容、不上传通讯录。策略在本机完成。
@@ -84,7 +84,7 @@ app/        CallScreeningService、Room、DataStore、Compose 界面
 
 核心入口：`dev.bandno.decision.CallScreener.decide()`。
 
-号码会去掉空格、横线及常见 `+86` / `0086` 前缀后再比较。日志可脱敏显示。来电尝试与筛选日志存在本机 Room 表 `call_attempts`，默认保留 14 天，可在设置中清除。
+号码会去掉空格、横线及常见 `+86` / `0086` 前缀后再比较。日志可脱敏显示，并在能查到时附上归属地，仅供展示，不参与拦截。中国归属地数据来自 [libphonenumber](https://github.com/google/libphonenumber) `resources/geocoding/zh/86.txt`（Apache-2.0）。来电尝试与筛选日志存在本机 Room 表 `call_attempts`，默认保留 14 天，可在设置中清除。
 
 ## 权限
 
@@ -97,4 +97,4 @@ app/        CallScreeningService、Room、DataStore、Compose 界面
 
 ## 许可
 
-[MIT](LICENSE)
+[FSL-1.1-ALv2](LICENSE)。Copyright 2026 youfun。每个版本在发布满两年后，可按 Apache License 2.0 使用。

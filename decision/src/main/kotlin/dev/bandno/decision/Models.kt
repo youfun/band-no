@@ -71,6 +71,11 @@ data class IncomingCall(
     val normalizedNumber: String? = null,
 )
 
+data class NormalizedNumber(
+    val digits: String,
+    val international: Boolean,
+)
+
 data class ScreenDecision(
     val action: DecisionAction,
     val ruleHit: RuleHit,

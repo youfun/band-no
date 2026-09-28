@@ -20,4 +20,5 @@ data class CallAttemptEntity(
     @ColumnInfo(name = "action") val action: String,
     @ColumnInfo(name = "rule_hit") val ruleHit: String,
     @ColumnInfo(name = "is_contact") val isContact: Boolean,
+    @ColumnInfo(name = "region") val region: String = "",
 )

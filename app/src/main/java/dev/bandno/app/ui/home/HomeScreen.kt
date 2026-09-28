@@ -233,6 +233,10 @@ internal fun LogRow(row: CallAttemptEntity, mask: Boolean) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             val rule = buildString {
                 append(ruleLabel(context, row.ruleHit))
+                if (row.region.isNotBlank()) {
+                    append(" · ")
+                    append(row.region)
+                }
                 if (row.isContact) {
                     append(" · ")
                     append(context.getString(R.string.logs_contact_badge))
