@@ -97,4 +97,4 @@ app/        CallScreeningService、Room、DataStore、Compose 界面
 
 ## 许可
 
-[FSL-1.1-ALv2](LICENSE)。Copyright 2026 youfun。每个版本在发布满两年后，可按 Apache License 2.0 使用。
+[FSL-1.1-ALv2](LICENSE)。Copyright 2026 youfun。
