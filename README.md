@@ -1,23 +1,21 @@
 # Band No（来电筛选）
 
-轻量安卓来电筛选：响铃前按「号段 + 时段 + 同号二次来电」决定放行或拦截。宁可多响，也不要误拦。
+Android 来电筛选应用，基于号段、时段和同号二次来电规则决定放行或拦截。纯本地规则判定，不依赖网络，不上传通讯录与来电信息。
 
 - 最低系统：Android 10（API 29）
-- 当前版本：0.0.4
+- 当前版本：0.0.5
 - 包名：`dev.bandno.app`（debug 为 `dev.bandno.app.debug`）
 
-判定只看号码、是否联系人、来电时间和近期拨打次数。不录音、不读通话内容、不上传通讯录。策略在本机完成。
-
-## 默认规则（均可在设置里改）
+## 默认规则
 
 | 名称 | 默认 | 参数 |
 |---|---|---|
-| 联系人始终放行 | 开启 | 通讯录号码必响 |
-| 放行时段 | 每日 18:00–22:00，备注「下班」 | 可加多段；备注可改、可空；总开关在详情页 |
-| 二次来电放行 | 同一号码在 **3 分钟内**（不含整 3 分钟）再次来电则响铃 | 间隔；是否要求第一次曾被拦截 |
-| 号段拦截 | 未设置 | 3–7 位数字前缀；空列表不按号段拦截 |
+| 联系人始终放行 | 开启 | 通讯录号码直接放行 |
+| 放行时段 | 每日 18:00–22:00，备注「下班」 | 支持多时段与自定义备注 |
+| 二次来电放行 | 同一号码在 **3 分钟内**（不含整 3 分钟）再次来电则响铃 | 可配置间隔时间及首次来电拦截条件 |
+| 号段拦截 | 未设置 | 支持 3–7 位数字前缀 |
 
-联系人默认始终放行。非放行时默认 **静音通知**（不响铃、不震动，系统仍记未接来电），可改为拒接（需二次确认）。
+联系人默认始终放行。非放行来电默认执行 **静音通知**（不响铃、不震动，保留系统未接记录），亦可配置为直接拒接。
 
 跨午夜时段按半开区间 `[开始, 结束)` 计算，例如手动设置 22:00–08:00 含 22:00、07:59，不含 08:00。任一段命中即放行。
 
@@ -32,7 +30,7 @@
 5. 满足二次来电 → 放行
 6. 否则执行拦截动作（静音或拒接）
 
-号段在放行时段和二次来电之前。判定失败时放行（避免漏接）。
+号段拦截优先级高于放行时段与二次来电。若判定异常则默认放行。
 
 ## 使用
 
@@ -59,9 +57,11 @@ APK：`app/build/outputs/apk/debug/app-debug.apk`
 ./gradlew :app:assembleRelease -PabiFilters=arm64-v8a
 ```
 
-APK：`app/build/outputs/apk/release/app-release.apk`。给别人安装用这个，包名 `dev.bandno.app`。以后升级必须用同一把密钥签，否则无法覆盖安装。密钥库（`keystore/bandno-release.p12`）和 `keystore.properties` 不要提交到 git。
+APK 输出路径：`app/build/outputs/apk/release/app-release.apk`。
 
-推送到 `main` 或开 PR 时，GitHub Actions 会跑单测并上传 arm64-v8a 正式签名 APK。仓库 Secrets 需配置 `RELEASE_KEYSTORE_BASE64`、`BANDNO_STORE_PASSWORD`、`BANDNO_KEY_PASSWORD`（可选 `BANDNO_KEY_ALIAS`，默认 `bandno`）。打 tag（如 `v0.0.3`）成功后，APK 会出现在 [Releases](https://github.com/youfun/band-no/releases)。不上 Play，用户自行安装。
+注：密钥库（`keystore/bandno-release.p12`）及 `keystore.properties` 请勿提交至版本控制。
+
+推送到 `main` 或开 PR 时，GitHub Actions 会执行单元测试并构建 arm64-v8a 签名 APK。仓库 Secrets 需配置 `RELEASE_KEYSTORE_BASE64`、`BANDNO_STORE_PASSWORD`、`BANDNO_KEY_PASSWORD`（可选 `BANDNO_KEY_ALIAS`，默认 `bandno`）。发布 Release tag（如 `v0.0.5`）时将自动触发打包并附加到 [Releases](https://github.com/youfun/band-no/releases)。
 
 ```bash
 adb install -r app/build/outputs/apk/debug/app-debug.apk

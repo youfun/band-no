@@ -12,11 +12,11 @@
     <string name="role_inactive">筛选未生效</string>
     <string name="role_inactive_hint">系统仍按默认方式响铃。点此设为默认来电筛选应用。</string>
     <string name="role_request">设为默认来电筛选</string>
-    <string name="role_held_hint">本机将在响铃前按联系人、号段、放行时段和二次来电判定。</string>
+    <string name="role_held_hint">来电将由 Band No 自动进行筛选。</string>
 
     <string name="contacts_granted">已允许读取通讯录</string>
     <string name="contacts_missing">未授予通讯录权限</string>
-    <string name="contacts_missing_hint">无法识别联系人时，通讯录号码也会走时段规则。建议开启。</string>
+    <string name="contacts_missing_hint">未授权时，通讯录联系人将按普通号码规则处理。</string>
     <string name="contacts_request">授予通讯录权限</string>
 
     <string name="today_title">今日</string>
@@ -26,14 +26,14 @@
     <string name="recent_empty">还没有来电记录</string>
     <string name="see_all">查看全部</string>
 
-    <string name="onboarding_title_1">少接骚扰，不漏重要电话</string>
-    <string name="onboarding_body_1">按你设定的时段和「同一号码再次来电」决定响铃还是静音。规则存在本机，不上传通话内容，也不读通话内容。</string>
+    <string name="onboarding_title_1">按规则筛选来电</string>
+    <string name="onboarding_body_1">根据号段、放行时段与重复来电决定是否响铃。全部判定在本地完成。</string>
     <string name="onboarding_title_2">需要系统来电筛选角色</string>
     <string name="onboarding_body_2">Android 只把响铃前的判定交给「默认来电筛选应用」。下一步会跳到系统页，请选择 Band No。</string>
     <string name="onboarding_title_3">建议读取通讯录</string>
     <string name="onboarding_body_3">用于「联系人始终放行」。只比对号码是否在通讯录，不会备份或上传联系人。</string>
-    <string name="onboarding_title_4">国产手机请关掉系统拦截</string>
-    <string name="onboarding_body_4">小米、华为、OPPO、vivo 自带的陌生号拦截可能抢在本应用前面。请在机型说明里按品牌关掉系统拦截，并允许自启动。</string>
+    <string name="onboarding_title_4">系统拦截与后台设置</string>
+    <string name="onboarding_body_4">若系统自带拦截开启，来电可能无法正常传递给 Band No。请关闭系统自带拦截并允许后台运行。</string>
     <string name="onboarding_next">继续</string>
     <string name="onboarding_done">开始使用</string>
     <string name="onboarding_skip">稍后再说</string>
@@ -41,7 +41,7 @@
     <string name="settings_rules">规则</string>
     <string name="settings_decision_order">判定顺序：联系人 → 号段 → 放行时段 → 二次来电 → 默认拦截</string>
     <string name="settings_windows_title">放行时段</string>
-    <string name="settings_windows_hint">落在任一时段内的来电默认响铃。默认为下班后 18:00–22:00，备注可改，改时间也不丢。号段拦截仍优先。</string>
+    <string name="settings_windows_hint">处于时段内的来电正常响铃。号段拦截优先于时段规则。</string>
     <string name="settings_windows_enable_hint">关闭后不按时段放行</string>
     <string name="settings_windows_add">添加时段</string>
     <string name="settings_windows_note_hint">备注，可空</string>
@@ -52,7 +52,7 @@
     <string name="settings_repeat_enable_hint">关闭后不因再次来电放行</string>
     <string name="settings_prefix_title">号段拦截</string>
     <string name="settings_prefix_empty">未设置</string>
-    <string name="settings_prefix_hint">按号码开头拦截，例如 170。通讯录号码不受影响。空列表表示不按号段拦截。</string>
+    <string name="settings_prefix_hint">匹配指定前缀的来电将被拦截。通讯录联系人不受影响。</string>
     <string name="settings_prefix_added">已添加</string>
     <string name="settings_prefix_none">还没有号段</string>
     <string name="settings_prefix_placeholder">例如 170</string>
@@ -60,7 +60,7 @@
     <string name="settings_prefix_error">请输入 3 到 7 位数字，例如 170</string>
     <string name="settings_prefix_full">最多 30 个号段</string>
     <string name="settings_prefix_suggest">建议</string>
-    <string name="settings_prefix_suggest_hint">虚拟运营商常用号段，点一下加入。</string>
+    <string name="settings_prefix_suggest_hint">常用虚拟运营商号段</string>
     <string name="settings_prefix_remove">移除 %1$s</string>
     <string name="settings_rule_off">已关闭</string>
     <string name="settings_enabled">启用</string>
@@ -70,7 +70,7 @@
     <string name="settings_same_day_hint">当日：%1$s 至 %2$s（含开始，不含结束）</string>
     <string name="settings_r3_interval">间隔（分钟）</string>
     <string name="settings_r3_require_blocked">须曾被拦截 / 静音</string>
-    <string name="settings_r3_require_blocked_hint">关闭时，间隔内任意一次来电都算第一次</string>
+    <string name="settings_r3_require_blocked_hint">不限首次来电是否被拦截</string>
 
     <string name="settings_always_allow_contacts">联系人始终放行</string>
     <string name="settings_always_allow_contacts_hint">通讯录号码必响</string>
@@ -79,10 +79,10 @@
     <string name="settings_block_silence">静音通知（推荐）</string>
     <string name="settings_block_silence_hint">不响铃、不震动，系统仍记未接来电。</string>
     <string name="settings_block_reject">拒接</string>
-    <string name="settings_block_reject_hint">直接挂断。可能拦掉验证码或快递电话，需二次确认。</string>
+    <string name="settings_block_reject_hint">直接挂断。可能会导致重要来电无法接入。</string>
     <string name="settings_block_reject_confirm_title">确认使用拒接？</string>
-    <string name="settings_block_reject_confirm_body">拒接会立即挂断，对方听不到完整振铃。验证码、快递、医院回拨可能被掐掉。更稳妥的是保持「静音通知」，让二次来电放行。</string>
-    <string name="settings_block_reject_confirm">仍然使用拒接</string>
+    <string name="settings_block_reject_confirm_body">拒接会直接挂断电话，主叫方将听到忙音。部分快递、外卖或服务回拨可能受到影响。</string>
+    <string name="settings_block_reject_confirm">确认使用拒接</string>
     <string name="settings_cancel">取消</string>
 
     <string name="settings_other">其他</string>
@@ -97,13 +97,13 @@
     <string name="settings_clear_logs">清除日志</string>
     <string name="settings_clear_cache">清除来电缓存</string>
     <string name="settings_clear_logs_confirm">删除本机保存的筛选日志？不可恢复。</string>
-    <string name="settings_clear_cache_confirm">删除用于二次来电判定的号码历史？二次来电会暂时失效直到有新来电。</string>
+    <string name="settings_clear_cache_confirm">确定清除二次来电的号码识别记录？</string>
     <string name="settings_logs_summary">保留 %1$d 天 · 脱敏%2$s</string>
     <string name="settings_mask_on">开启</string>
     <string name="settings_mask_off">关闭</string>
     <string name="settings_cleared">已清除</string>
     <string name="settings_privacy">隐私说明</string>
-    <string name="settings_privacy_body">号码、判定结果和设置只存在本机。不录音、不读通话内容、不上传通讯录。若日后需要联网功能，会单独再征求同意。</string>
+    <string name="settings_privacy_body">数据与规则仅保留在设备本地，不收集、不上传任何通话与通讯录信息。</string>
     <string name="settings_version">%1$s</string>
 
     <string name="logs_title">最近筛选日志</string>
@@ -122,7 +122,7 @@
     <string name="logs_contact_badge">联系人</string>
 
     <string name="oem_title">机型说明</string>
-    <string name="oem_intro">部分手机的系统拦截或省电策略会让本应用来不及判定。请按品牌处理。</string>
+    <string name="oem_intro">部分厂商系统的自带拦截或省电策略可能导致筛选失效，请根据机型进行设置。</string>
     <string name="oem_generic_title">通用</string>
     <string name="oem_generic_body">设置 → 应用 → 默认应用 → 来电筛选 / 骚扰拦截，选 Band No。</string>
     <string name="oem_pixel_title">Pixel / 原生 Android</string>
